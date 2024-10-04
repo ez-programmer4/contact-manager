@@ -26,7 +26,7 @@ const EditContact = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          `https://contactmanager.onrender.com/api/contacts/${id}`,
+          `https://contact-manager-api-u2qo.onrender.com/api/contacts/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Include token in headers

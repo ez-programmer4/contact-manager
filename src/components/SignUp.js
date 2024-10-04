@@ -26,7 +26,7 @@ const SignUp = () => {
     setError(""); // Clear previous errors
     try {
       const response = await axios.post(
-        "https://contactmanager.onrender.com/api/user/register",
+        "https://contact-manager-api-u2qo.onrender.com/api/user/register",
         {
           username,
           email,

@@ -28,7 +28,7 @@ const DeleteContact = ({ contactId, setContacts, onCancel }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `https://contactmanager.onrender.com/api/contacts/${contactId}`,
+        `https://contact-manager-api-u2qo.onrender.com/api/contacts/${contactId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
