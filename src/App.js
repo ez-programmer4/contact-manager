@@ -1,24 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext"; // Import AuthProvider
+import Navbar from "./components/Navbar";
+import Home from "./components/Home";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+import Dashboard from "./components/Dashboard";
+import AddContact from "./components/AddContact"; // Component for adding contacts
+import EditContact from "./components/EditContact"; // Component for editing contacts
+import ContactList from "./components/ContactList"; // Component for displaying contacts
+import NotFound from "./components/NotFound"; // Component for handling 404 errors
+import Footer from "./components/Footer";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/contactlist" element={<ContactList />} />
+        <Route path="/add" element={<AddContact />} />
+        <Route path="/edit/:id" element={<EditContact />} />
+        <Route path="*" element={<NotFound />} /> {/* Handle 404 errors */}
+      </Routes>
+      <Footer />
+    </AuthProvider>
   );
 }
 
