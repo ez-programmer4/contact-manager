@@ -30,7 +30,7 @@ const SignIn = () => {
 
     try {
       const response = await axios.post(
-        "https://contact-manager-api-u2qo.onrender.com/api/user/login",
+        "https://contact-manager-api-3.onrender.com/api/user/login", // Updated URL
         {
           email,
           password,
@@ -56,7 +56,6 @@ const SignIn = () => {
       });
     }
   };
-
   return (
     <Box
       p={5}

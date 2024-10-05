@@ -27,7 +27,7 @@ const AddContact = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "https://contact-manager-api-u2qo.onrender.com/api/contacts",
+        "https://contact-manager-api-3.onrender.com/api/contacts",
         { name, email, phone },
         {
           headers: {
