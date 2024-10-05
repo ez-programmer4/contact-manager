@@ -10,59 +10,36 @@ import {
   Alert,
   AlertIcon,
   VStack,
-  useToast,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignUp = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccessMessage("");
-
+    setError(""); // Clear previous errors
     try {
       const response = await axios.post(
-        "https://contact-manager-api-u2qo.onrender.com/api/user/signup",
+        "https://contact-manager-api-u2qo.onrender.com/api/user/register",
         {
+          username,
           email,
           password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json", // Ensure the correct content type
-          },
         }
       );
-
-      setSuccessMessage("Account created successfully!");
-      toast({
-        title: "Success!",
-        description: "Account created successfully. Please sign in.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate("/signin"); // Redirect to sign-in page after successful signup
+      navigate("/signin"); // Redirect to sign in page after successful registration
     } catch (error) {
-      setError(error.response?.data?.message || "Sign up failed");
-      toast({
-        title: "Error signing up.",
-        description: error.response?.data?.message || "Please try again.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      console.error("Error signing up:", error);
+      const errorMessage = error.response?.data?.message || "Signup failed";
+      setError(errorMessage); // Show error message
     }
   };
-
   return (
     <Box
       p={5}
@@ -89,12 +66,17 @@ const SignUp = () => {
               {error}
             </Alert>
           )}
-          {successMessage && (
-            <Alert status="success" mt={4}>
-              <AlertIcon />
-              {successMessage}
-            </Alert>
-          )}
+          <FormControl isRequired>
+            <FormLabel color="whiteAlpha.800">Username</FormLabel>
+            <Input
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              variant="outline"
+            />
+          </FormControl>
           <FormControl isRequired>
             <FormLabel color="whiteAlpha.800">Email</FormLabel>
             <Input
