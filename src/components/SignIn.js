@@ -34,6 +34,11 @@ const SignIn = () => {
         {
           email,
           password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure the correct content type
+          },
         }
       );
       login(response.data.accessToken); // Call the login function
