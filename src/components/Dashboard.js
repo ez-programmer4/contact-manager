@@ -22,7 +22,7 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "https://contact-manager-api-3.onrender.com/api/contacts",
+        "https://contact-manager-apii.onrender.com/api/contacts",
         {
           headers: {
             Authorization: `Bearer ${token}`,

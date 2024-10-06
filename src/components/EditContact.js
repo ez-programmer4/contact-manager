@@ -26,7 +26,7 @@ const EditContact = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          `https://contact-manager-api-3.onrender.com/api/contacts/${id}`,
+          `https://contact-manager-apii.onrender.com/api/contacts/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Include token in headers
@@ -50,7 +50,7 @@ const EditContact = () => {
     try {
       const token = localStorage.getItem("token"); // Retrieve token for update request
       await axios.put(
-        `https://contactmanager.onrender.com/api/contacts/${id}`,
+        `https://contact-manager-apii.onrender.com/api/contacts/${id}`,
         contact,
         {
           headers: {
