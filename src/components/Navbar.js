@@ -15,7 +15,9 @@ const Navbar = () => {
   const isLoggedIn = Boolean(accessToken); // Check if the user is logged in
 
   return (
-    <Box bg="blue.500" p={4}>
+    <Box bg="green.500" p={4}>
+      {" "}
+      {/* Changed background color here */}
       <Flex alignItems="center">
         <Heading size="md" color="white" mr={8}>
           Contact Manager
