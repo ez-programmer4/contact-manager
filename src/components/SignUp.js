@@ -25,7 +25,7 @@ const SignUp = () => {
     e.preventDefault();
     setError(""); // Clear previous errors
     try {
-      const response = await axios.post(
+      await axios.post(
         "https://contact-manager-apii.onrender.com/api/user/register",
         {
           username,
@@ -36,8 +36,15 @@ const SignUp = () => {
       navigate("/signin"); // Redirect to sign in page after successful registration
     } catch (error) {
       console.error("Error signing up:", error);
-      const errorMessage = error.response?.data?.message || "Signup failed";
-      setError(errorMessage); // Show error message
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+        const errorMessage = error.response.data.message || "Signup failed";
+        setError(errorMessage); // Show error message
+      } else {
+        setError("Network error or server is down");
+      }
     }
   };
   return (
