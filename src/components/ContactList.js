@@ -10,10 +10,13 @@ import {
   Input,
   HStack,
   Select,
+  Icon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import { FaStar, FaRegStar } from "react-icons/fa"; // Import icons for favorites
 import DeleteContact from "./DeleteContact";
 import ContactDetails from "./ContactDetails";
+import { toggleFavoriteContact } from "../services/api"; // Import the toggleFavoriteContact function
 
 const ContactList = ({ contacts, setContacts }) => {
   const [error, setError] = useState(null);
@@ -21,6 +24,7 @@ const ContactList = ({ contacts, setContacts }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("name");
   const [selectedContact, setSelectedContact] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(""); // State for contact groups
   const navigate = useNavigate();
 
   const handleDeleteClick = (id) => {
@@ -33,7 +37,10 @@ const ContactList = ({ contacts, setContacts }) => {
 
   const filteredContacts = contacts.filter((contact) => {
     const lowerCaseTerm = searchTerm.toLowerCase();
-    return contact.name.toLowerCase().includes(lowerCaseTerm); // Filter only by name
+    return (
+      contact.name.toLowerCase().includes(lowerCaseTerm) &&
+      (selectedGroup ? contact.group === selectedGroup : true) // Filter by group if selected
+    );
   });
 
   const sortedContacts = filteredContacts.sort((a, b) => {
@@ -45,6 +52,21 @@ const ContactList = ({ contacts, setContacts }) => {
       return a.phone.localeCompare(b.phone);
     }
   });
+
+  const toggleFavorite = async (id, isFavorite) => {
+    try {
+      const updatedContact = await toggleFavoriteContact(id, {
+        favorite: !isFavorite,
+      });
+      setContacts((prev) =>
+        prev.map((contact) =>
+          contact._id === id ? { ...contact, favorite: !isFavorite } : contact
+        )
+      );
+    } catch (error) {
+      setError("Failed to update favorite status.");
+    }
+  };
 
   if (!Array.isArray(contacts)) {
     console.error("Contacts prop is not an array:", contacts);
@@ -88,6 +110,20 @@ const ContactList = ({ contacts, setContacts }) => {
           <option value="email">Sort by Email</option>
           <option value="phone">Sort by Phone</option>
         </Select>
+        <Select
+          placeholder="Filter by Group"
+          value={selectedGroup}
+          onChange={(e) => setSelectedGroup(e.target.value)}
+          bg="gray.700"
+          color="white"
+          borderColor="whiteAlpha.600"
+          width="auto"
+        >
+          <option value="Family">Family</option>
+          <option value="Friends">Friends</option>
+          <option value="Colleagues">Colleagues</option>
+          {/* Add more groups as needed */}
+        </Select>
       </HStack>
       {sortedContacts.length === 0 ? (
         <Alert status="info">
@@ -115,6 +151,12 @@ const ContactList = ({ contacts, setContacts }) => {
                 {contact.name} - {contact.email} - {contact.phone}
               </Box>
               <HStack>
+                <Icon
+                  as={contact.favorite ? FaStar : FaRegStar}
+                  color={contact.favorite ? "yellow.400" : "gray.400"}
+                  cursor="pointer"
+                  onClick={() => toggleFavorite(contact._id, contact.favorite)}
+                />
                 <Button
                   onClick={() => setSelectedContact(contact)}
                   colorScheme="teal"
@@ -129,7 +171,6 @@ const ContactList = ({ contacts, setContacts }) => {
                 >
                   Edit
                 </Button>
-                {/* Trigger the delete confirmation dialog */}
                 <Button
                   onClick={() => handleDeleteClick(contact._id)}
                   colorScheme="red"

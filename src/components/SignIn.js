@@ -21,12 +21,14 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
 
     try {
@@ -47,6 +49,8 @@ const SignIn = () => {
         duration: 3000,
         isClosable: true,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,7 +89,7 @@ const SignIn = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               variant="outline"
-              color="white" // Set text color to white
+              color="white"
             />
           </FormControl>
           <FormControl isRequired>
@@ -97,7 +101,7 @@ const SignIn = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               variant="outline"
-              color="white" // Set text color to white
+              color="white"
             />
             <Button
               mt={2}
@@ -108,7 +112,14 @@ const SignIn = () => {
               {showPassword ? "Hide" : "Show"} Password
             </Button>
           </FormControl>
-          <Button mt={4} colorScheme="blue" type="submit" width="full">
+          <Button
+            mt={4}
+            colorScheme="blue"
+            type="submit"
+            width="full"
+            isLoading={loading} // Show loading state
+            isDisabled={loading} // Disable button when loading
+          >
             Sign In
           </Button>
         </VStack>
