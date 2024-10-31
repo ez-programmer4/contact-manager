@@ -7,6 +7,7 @@ import {
   FormLabel,
   Input,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import { createContact } from "../services/api";
 
@@ -15,11 +16,33 @@ const AddContact = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [group, setGroup] = useState("");
+  const toast = useToast(); // For displaying notifications
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createContact({ name, email, phone, group }); // Update API service accordingly
-    // Clear form or show success message
+    try {
+      await createContact({ name, email, phone, group });
+      toast({
+        title: "Contact Added",
+        description: "Contact has been successfully added.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      // Clear the form fields
+      setName("");
+      setEmail("");
+      setPhone("");
+      setGroup("");
+    } catch (error) {
+      toast({
+        title: "Error adding contact",
+        description: error.response?.data?.message || "An error occurred.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
