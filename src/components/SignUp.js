@@ -18,35 +18,26 @@ const SignUp = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
+
     try {
       await axios.post(
         "https://contact-manager-apii.onrender.com/api/user/register",
-        {
-          username,
-          email,
-          password,
-        }
+        { username, email, password }
       );
-      navigate("/signin"); // Redirect to sign in page after successful registration
-    } catch (error) {
-      console.error("Error signing up:", error);
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        console.error("Response headers:", error.response.headers);
-        const errorMessage = error.response.data.message || "Signup failed";
-        setError(errorMessage); // Show error message
-      } else {
-        setError("Network error or server is down");
-      }
+      navigate("/signin");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Signup failed";
+      setError(errorMessage);
     }
   };
+
   return (
     <Box
       p={5}
@@ -98,13 +89,21 @@ const SignUp = () => {
           <FormControl isRequired>
             <FormLabel color="whiteAlpha.800">Password</FormLabel>
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               variant="outline"
             />
+            <Button
+              mt={2}
+              onClick={() => setShowPassword(!showPassword)}
+              variant="link"
+              colorScheme="blue"
+            >
+              {showPassword ? "Hide" : "Show"} Password
+            </Button>
           </FormControl>
           <Button mt={4} colorScheme="blue" type="submit" width="full">
             Sign Up

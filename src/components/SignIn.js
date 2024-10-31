@@ -14,15 +14,16 @@ import {
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext"; // Import useAuth
+import { useAuth } from "../context/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const toast = useToast();
-  const { login } = useAuth(); // Get login function from context
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,32 +31,25 @@ const SignIn = () => {
 
     try {
       const response = await axios.post(
-        "https://contact-manager-apii.onrender.com/api/user/login", // Updated URL
-        {
-          email,
-          password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json", // Ensure the correct content type
-          },
-        }
+        "https://contact-manager-apii.onrender.com/api/user/login",
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
       );
-      login(response.data.accessToken); // Call the login function
+      login(response.data.accessToken);
       navigate("/dashboard");
-    } catch (error) {
-      setError(error.response?.data?.message || "Sign in failed");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Sign in failed";
+      setError(errorMessage);
       toast({
         title: "Error signing in.",
-        description:
-          error.response?.data?.message ||
-          "Please check your email and password.",
+        description: errorMessage,
         status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
   };
+
   return (
     <Box
       p={5}
@@ -96,13 +90,21 @@ const SignIn = () => {
           <FormControl isRequired>
             <FormLabel color="whiteAlpha.800">Password</FormLabel>
             <Input
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               variant="outline"
             />
+            <Button
+              mt={2}
+              onClick={() => setShowPassword(!showPassword)}
+              variant="link"
+              colorScheme="blue"
+            >
+              {showPassword ? "Hide" : "Show"} Password
+            </Button>
           </FormControl>
           <Button mt={4} colorScheme="blue" type="submit" width="full">
             Sign In
