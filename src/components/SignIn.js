@@ -85,6 +85,7 @@ const SignIn = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               variant="outline"
+              color="white" // Set text color to white
             />
           </FormControl>
           <FormControl isRequired>
@@ -96,6 +97,7 @@ const SignIn = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               variant="outline"
+              color="white" // Set text color to white
             />
             <Button
               mt={2}
