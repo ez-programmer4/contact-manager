@@ -1,31 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Alert,
   AlertIcon,
   Heading,
   Grid,
   GridItem,
-  Input,
-  HStack,
   Select,
+  HStack,
   Icon,
+  Checkbox,
+  Stack,
+  Button,
+  Flex,
+  Spinner,
+  Input, // Import Input for search
 } from "@chakra-ui/react";
+import { FaEye, FaEdit, FaTrash, FaStar, FaRegStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { FaStar, FaRegStar } from "react-icons/fa"; // Import icons for favorites
 import DeleteContact from "./DeleteContact";
 import ContactDetails from "./ContactDetails";
-import { toggleFavoriteContact } from "../services/api"; // Import the toggleFavoriteContact function
+import { toggleFavoriteContact } from "../services/api";
+import axios from "axios";
 
-const ContactList = ({ contacts, setContacts }) => {
+const ContactList = ({ setContacts }) => {
+  const [contacts, setContactsLocal] = useState([]);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [contactToDelete, setContactToDelete] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("name");
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
-  const [selectedGroup, setSelectedGroup] = useState(""); // State for contact groups
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+
   const navigate = useNavigate();
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:3001/api/contacts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setContactsLocal(response.data);
+      setContacts(response.data);
+      console.log("Fetched Contacts:", response.data);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      setError("Failed to load contacts. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
 
   const handleDeleteClick = (id) => {
     setContactToDelete(id);
@@ -35,30 +68,40 @@ const ContactList = ({ contacts, setContacts }) => {
     setContactToDelete(null);
   };
 
+  const clearFilters = () => {
+    setSelectedGroup("");
+    setSelectedContacts([]);
+    setSearchTerm(""); // Clear search term
+  };
+
+  // Filter contacts based on selected group and search term
   const filteredContacts = contacts.filter((contact) => {
-    const lowerCaseTerm = searchTerm.toLowerCase();
-    return (
-      contact.name.toLowerCase().includes(lowerCaseTerm) &&
-      (selectedGroup ? contact.group === selectedGroup : true) // Filter by group if selected
-    );
+    if (!contact) {
+      console.log("Skipped undefined contact");
+      return false;
+    }
+
+    // Check if the contact matches the selected group
+    const matchesGroup =
+      !selectedGroup ||
+      contact.group.toLowerCase() === selectedGroup.toLowerCase();
+
+    // Check if the contact name matches the search term
+    const matchesSearch = contact.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    return matchesGroup && matchesSearch;
   });
 
   const sortedContacts = filteredContacts.sort((a, b) => {
-    if (sortOrder === "name") {
-      return a.name.localeCompare(b.name);
-    } else if (sortOrder === "email") {
-      return a.email.localeCompare(b.email);
-    } else {
-      return a.phone.localeCompare(b.phone);
-    }
+    return a.name.localeCompare(b.name);
   });
 
   const toggleFavorite = async (id, isFavorite) => {
     try {
-      const updatedContact = await toggleFavoriteContact(id, {
-        favorite: !isFavorite,
-      });
-      setContacts((prev) =>
+      await toggleFavoriteContact(id, { favorite: !isFavorite });
+      setContactsLocal((prev) =>
         prev.map((contact) =>
           contact._id === id ? { ...contact, favorite: !isFavorite } : contact
         )
@@ -78,7 +121,7 @@ const ContactList = ({ contacts, setContacts }) => {
   }
 
   return (
-    <Box p={5} bg="gray.800" borderRadius="md" color="white">
+    <Box p={5} bg="gray.800" borderRadius="md" color="white" width="100%">
       <Heading size="lg" mb={4}>
         Contact List
       </Heading>
@@ -87,114 +130,133 @@ const ContactList = ({ contacts, setContacts }) => {
           <AlertIcon /> {error}
         </Alert>
       )}
-      <HStack mb={4} spacing={4} width="100%">
-        <Input
-          placeholder="Search by name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          bg="gray.700"
-          color="white"
-          borderColor="whiteAlpha.600"
-          _placeholder={{ color: "whiteAlpha.600" }}
-          flex="1"
-        />
-        <Select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          bg="gray.700"
-          color="white"
-          borderColor="whiteAlpha.600"
-          width="auto"
-        >
-          <option value="name">Sort by Name</option>
-          <option value="email">Sort by Email</option>
-          <option value="phone">Sort by Phone</option>
-        </Select>
-        <Select
-          placeholder="Filter by Group"
-          value={selectedGroup}
-          onChange={(e) => setSelectedGroup(e.target.value)}
-          bg="gray.700"
-          color="white"
-          borderColor="whiteAlpha.600"
-          width="auto"
-        >
-          <option value="Family">Family</option>
-          <option value="Friends">Friends</option>
-          <option value="Colleagues">Colleagues</option>
-          {/* Add more groups as needed */}
-        </Select>
-      </HStack>
-      {sortedContacts.length === 0 ? (
-        <Alert status="info">
-          <AlertIcon />
-          No contacts found.
+      {success && (
+        <Alert status="success" mb={4}>
+          <AlertIcon /> {success}
         </Alert>
+      )}
+
+      {loading ? (
+        <Flex justifyContent="center" alignItems="center" height="100%">
+          <Spinner size="xl" color="teal.400" />
+        </Flex>
       ) : (
-        <Grid
-          templateColumns={{ base: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr" }}
-          gap={4}
-        >
-          {sortedContacts.map((contact) => (
-            <GridItem
-              key={contact._id}
-              p={4}
-              borderWidth="1px"
-              borderRadius="md"
+        <>
+          {/* Search Input */}
+          <HStack spacing={4} mb={4}>
+            <Input
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               bg="gray.700"
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              overflow="hidden"
+              color="white"
+              borderColor="blackAlpha.600"
+              width="auto"
+            />
+            {/* Filter by Group */}
+            <Select
+              placeholder="Filter by Group"
+              value={selectedGroup}
+              onChange={(e) => setSelectedGroup(e.target.value)}
+              bg="gray.700"
+              color="white"
+              borderColor="blackAlpha.600"
+              width="auto"
             >
-              <Box isTruncated>
-                {contact.name} - {contact.email} - {contact.phone}
-              </Box>
-              <HStack>
-                <Icon
-                  as={contact.favorite ? FaStar : FaRegStar}
-                  color={contact.favorite ? "yellow.400" : "gray.400"}
-                  cursor="pointer"
-                  onClick={() => toggleFavorite(contact._id, contact.favorite)}
-                />
-                <Button
-                  onClick={() => setSelectedContact(contact)}
-                  colorScheme="teal"
-                  ml={2}
+              <option value="Family">Family</option>
+              <option value="Friends">Friends</option>
+              <option value="Colleagues">Colleagues</option>
+            </Select>
+            <Button onClick={clearFilters} colorScheme="red">
+              Clear Filters
+            </Button>
+          </HStack>
+
+          {filteredContacts.length === 0 ? (
+            <Alert status="info">
+              <AlertIcon />
+              No contacts found for the selected group or search term.
+            </Alert>
+          ) : (
+            <Grid
+              templateColumns={{
+                base: "1fr",
+                md: "repeat(auto-fill, minmax(250px, 1fr))",
+              }}
+              gap={4}
+            >
+              {sortedContacts.map((contact) => (
+                <GridItem
+                  key={contact._id}
+                  p={4}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  bg="gray.700"
                 >
-                  Show Details
-                </Button>
-                <Button
-                  onClick={() => navigate(`/edit/${contact._id}`)}
-                  colorScheme="blue"
-                  ml={2}
-                >
-                  Edit
-                </Button>
-                <Button
-                  onClick={() => handleDeleteClick(contact._id)}
-                  colorScheme="red"
-                  ml={2}
-                >
-                  Delete
-                </Button>
-              </HStack>
-            </GridItem>
-          ))}
-        </Grid>
-      )}
-      {contactToDelete && (
-        <DeleteContact
-          contactId={contactToDelete}
-          setContacts={setContacts}
-          onCancel={cancelDelete}
-        />
-      )}
-      {selectedContact && (
-        <ContactDetails
-          contact={selectedContact}
-          onClose={() => setSelectedContact(null)}
-        />
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Checkbox
+                      size="sm"
+                      colorScheme="teal"
+                      isChecked={selectedContacts.includes(contact)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedContacts((prev) => [...prev, contact]);
+                        } else {
+                          setSelectedContacts((prev) =>
+                            prev.filter((c) => c._id !== contact._id)
+                          );
+                        }
+                      }}
+                    />
+                    <Box isTruncated>{contact.name}</Box>
+                    <HStack spacing={4}>
+                      <Icon
+                        as={contact.favorite ? FaStar : FaRegStar}
+                        color={contact.favorite ? "yellow.400" : "gray.400"}
+                        cursor="pointer"
+                        onClick={() =>
+                          toggleFavorite(contact._id, contact.favorite)
+                        }
+                      />
+                      <Icon
+                        as={FaEye}
+                        color="blue.400"
+                        cursor="pointer"
+                        onClick={() => setSelectedContact(contact)}
+                      />
+                      <Icon
+                        as={FaEdit}
+                        color="green.400"
+                        cursor="pointer"
+                        onClick={() => navigate(`/edit/${contact._id}`)}
+                      />
+                      <Icon
+                        as={FaTrash}
+                        color="red.400"
+                        cursor="pointer"
+                        onClick={() => handleDeleteClick(contact._id)}
+                      />
+                    </HStack>
+                  </HStack>
+                </GridItem>
+              ))}
+            </Grid>
+          )}
+
+          {contactToDelete && (
+            <DeleteContact
+              contactId={contactToDelete}
+              setContacts={setContacts}
+              onCancel={cancelDelete}
+            />
+          )}
+          {selectedContact && (
+            <ContactDetails
+              contact={selectedContact}
+              onClose={() => setSelectedContact(null)}
+            />
+          )}
+        </>
       )}
     </Box>
   );

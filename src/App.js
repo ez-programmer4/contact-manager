@@ -11,6 +11,7 @@ import EditContact from "./components/EditContact"; // Component for editing con
 import ContactList from "./components/ContactList"; // Component for displaying contacts
 import NotFound from "./components/NotFound"; // Component for handling 404 errors
 import Footer from "./components/Footer";
+import UserProfile from "./components/UserProfile"; // Import UserProfile component
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/userprofile" element={<UserProfile />} />{" "}
+        {/* New route for UserProfile */}
         <Route path="/contactlist" element={<ContactList />} />
         <Route path="/add" element={<AddContact />} />
         <Route path="/edit/:id" element={<EditContact />} />

@@ -1,3 +1,5 @@
+// src/components/EditContact.js
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -5,6 +7,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Select,
   Heading,
   Spinner,
   Alert,
@@ -16,7 +19,12 @@ import axios from "axios";
 
 const EditContact = () => {
   const { id } = useParams();
-  const [contact, setContact] = useState({ name: "", email: "", phone: "" });
+  const [contact, setContact] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    group: "",
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -26,7 +34,7 @@ const EditContact = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from local storage
         const response = await axios.get(
-          `https://contact-manager-apii.onrender.com/api/contacts/${id}`,
+          `http://localhost:3001/api/contacts/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Include token in headers
@@ -49,15 +57,11 @@ const EditContact = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token"); // Retrieve token for update request
-      await axios.put(
-        `https://contact-manager-apii.onrender.com/api/contacts/${id}`,
-        contact,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token in headers
-          },
-        }
-      );
+      await axios.put(`http://localhost:3001/api/contacts/${id}`, contact, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token in headers
+        },
+      });
       navigate("/dashboard"); // Redirect to dashboard after editing
     } catch (err) {
       console.error("Error updating contact:", err);
@@ -119,6 +123,21 @@ const EditContact = () => {
             borderColor="whiteAlpha.600"
             _placeholder={{ color: "whiteAlpha.600" }}
           />
+        </FormControl>
+        <FormControl isRequired>
+          <FormLabel color="whiteAlpha.800">Group</FormLabel>
+          <Select
+            value={contact.group}
+            onChange={(e) => setContact({ ...contact, group: e.target.value })}
+            bg="gray.700"
+            color="white"
+            borderColor="whiteAlpha.600"
+          >
+            <option value="Family">Family</option>
+            <option value="Friends">Friends</option>
+            <option value="Colleagues">Colleagues</option>
+            <option value="">Select Group</option>
+          </Select>
         </FormControl>
         <Button mt={4} colorScheme="teal" type="submit">
           Update Contact

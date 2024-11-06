@@ -1,5 +1,5 @@
-// src/components/UserProfile.js
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -10,7 +10,7 @@ import {
   Alert,
 } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
-import { updateUserProfile } from "../services/api"; // Add this to your API service
+import { updateUserProfile, getCurrentUser } from "../services/api";
 
 const UserProfile = () => {
   const { accessToken } = useAuth();
@@ -19,24 +19,37 @@ const UserProfile = () => {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data here
     const fetchUserProfile = async () => {
-      const response = await getCurrentUser(); // Implement this function in your API service
-      setUsername(response.username);
-      setEmail(response.email);
+      try {
+        const response = await getCurrentUser(accessToken);
+        console.log("User profile data:", response); // Ensure the response is logged
+        setUsername(response.username || ""); // Set username from response
+        setEmail(response.email || ""); // Set email from response
+      } catch (err) {
+        setError("Failed to fetch user profile.");
+        console.error("Fetch error:", err); // Log the error
+      }
     };
-    fetchUserProfile();
-  }, []);
+
+    if (accessToken) {
+      // Ensure the token exists before fetching
+      fetchUserProfile();
+    }
+  }, [accessToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await updateUserProfile({ username, email, password }, accessToken);
       setMessage("Profile updated successfully!");
+      setError("");
+      navigate("/dashboard");
     } catch (err) {
       setError("Failed to update profile.");
+      setMessage("");
     }
   };
 
@@ -50,7 +63,7 @@ const UserProfile = () => {
           <FormLabel>Username</FormLabel>
           <Input
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value || "")}
           />
         </FormControl>
         <FormControl>
@@ -58,7 +71,7 @@ const UserProfile = () => {
           <Input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value || "")}
           />
         </FormControl>
         <FormControl>
@@ -66,7 +79,7 @@ const UserProfile = () => {
           <Input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value || "")}
           />
         </FormControl>
         <Button mt={4} colorScheme="blue" type="submit">

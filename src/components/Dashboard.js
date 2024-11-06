@@ -8,33 +8,31 @@ import {
   VStack,
   Alert,
   AlertIcon,
+  Spinner,
 } from "@chakra-ui/react";
-import ContactList from "./ContactList"; // Import the ContactList component
+import ContactList from "./ContactList";
 
 const Dashboard = () => {
   const [contacts, setContacts] = useState([]);
-  const [error, setError] = useState(""); // State for error messages
-  const [loading, setLoading] = useState(true); // State for loading status
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchContacts = async () => {
-    setLoading(true); // Set loading to true before fetching
-    setError(""); // Clear previous errors
+    setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://contact-manager-apii.onrender.com/api/contacts",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get("http://localhost:3001/api/contacts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setContacts(response.data);
     } catch (error) {
       console.error("Error fetching contacts:", error);
       setError("Failed to load contacts. Please try again later.");
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 
@@ -43,12 +41,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <Box
-      p={5}
-      minH="100vh"
-      bg="black" // Set background to black
-      color="white" // Set text color to white
-    >
+    <Box p={{ base: 4, md: 5 }} minH="100vh" bg="black" color="white">
       <VStack spacing={4} align="start">
         <Heading size="lg" color="teal.500">
           Dashboard
@@ -63,9 +56,16 @@ const Dashboard = () => {
           </Alert>
         )}
         {loading ? (
-          <Box color="white">Loading contacts...</Box> // Loading state
+          <Box color="white" display="flex" alignItems="center">
+            <Spinner size="lg" color="teal.500" />
+            <Box ml={4}>Loading contacts...</Box>
+          </Box>
         ) : (
-          <ContactList contacts={contacts} setContacts={setContacts} />
+          <ContactList
+            contacts={contacts}
+            setContacts={setContacts}
+            fetchContacts={fetchContacts} // Keep this if you want to pass it down for importing
+          />
         )}
       </VStack>
     </Box>

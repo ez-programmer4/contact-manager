@@ -1,5 +1,5 @@
-// src/components/AddContact.js
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -16,12 +16,26 @@ const AddContact = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [group, setGroup] = useState("");
-  const toast = useToast(); // For displaying notifications
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate that a group is selected
+    if (!group) {
+      toast({
+        title: "Group Required",
+        description: "Please select a group for the contact.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
-      await createContact({ name, email, phone, group });
+      await createContact({ name, email, phone, group }); // Ensure group is included
       toast({
         title: "Contact Added",
         description: "Contact has been successfully added.",
@@ -34,6 +48,7 @@ const AddContact = () => {
       setEmail("");
       setPhone("");
       setGroup("");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Error adding contact",

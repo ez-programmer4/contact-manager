@@ -10,7 +10,7 @@ const ContactDetails = ({ contact, onClose }) => {
       <Text>Name: {contact.name}</Text>
       <Text>Email: {contact.email}</Text>
       <Text>Phone: {contact.phone}</Text>
-      {/* Add more fields as necessary */}
+      <Text>Group: {contact.group}</Text> {/* Display group */}
       <Button mt={2} colorScheme="blue" onClick={onClose}>
         Close
       </Button>
