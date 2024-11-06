@@ -22,11 +22,14 @@ const Dashboard = () => {
     setError("");
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:3001/api/contacts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://contact-manager-api-htug.onrender.com/api/contacts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setContacts(response.data);
     } catch (error) {
       console.error("Error fetching contacts:", error);

@@ -27,11 +27,14 @@ const DeleteContact = ({ contactId, setContacts, onCancel }) => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3001/api/contacts/${contactId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `https://contact-manager-api-htug.onrender.com/api/contacts/${contactId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setContacts((prevContacts) =>
         prevContacts.filter((contact) => contact._id !== contactId)
       );

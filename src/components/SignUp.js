@@ -27,11 +27,14 @@ const SignUp = () => {
     setError("");
 
     try {
-      await axios.post("http://localhost:3001/api/user/register", {
-        username,
-        email,
-        password,
-      });
+      await axios.post(
+        "https://contact-manager-api-htug.onrender.com/api/user/register",
+        {
+          username,
+          email,
+          password,
+        }
+      );
       navigate("/signin");
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Signup failed";

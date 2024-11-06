@@ -40,11 +40,14 @@ const ContactList = ({ setContacts }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:3001/api/contacts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://contact-manager-api-htug.onrender.com/api/contacts",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setContactsLocal(response.data);
       setContacts(response.data);
       console.log("Fetched Contacts:", response.data);
